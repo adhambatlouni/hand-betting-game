@@ -1,10 +1,5 @@
 import { create } from "zustand";
-import {
-  GameState,
-  GameStatus,
-  GameOverReason,
-  BetType,
-} from "@/lib/types/game.types";
+import { GameState, GameOverReason, BetType } from "@/lib/types/game.types";
 import { GAME_CONSTANTS } from "@/lib/constants/game.constants";
 import {
   createShuffledDeck,
@@ -19,6 +14,7 @@ import {
   findGameOverTile,
   mergeTileUpdates,
 } from "@/lib/engine/tileEngine";
+import { buildDeck } from "../constants/tile.constants";
 
 interface GameStore extends GameState {
   startGame: () => void;
@@ -45,10 +41,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const deck = createShuffledDeck();
     const { drawn, remaining } = drawTiles(deck, GAME_CONSTANTS.HAND_SIZE);
     const firstHand = buildHand(drawn);
-
     set({
       ...initialState,
       drawPile: remaining,
+      discardPile: [],
       currentHand: firstHand,
       status: "betting",
     });
@@ -63,18 +59,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
       score,
       reshuffleCount,
     } = get();
+    console.log(
+      "BEFORE BET → drawPile:",
+      drawPile.length,
+      "| discard:",
+      discardPile.length,
+      "| reshuffles used:",
+      reshuffleCount,
+    );
 
     if (!currentHand) return;
 
     let activeDeck = drawPile;
     let newReshuffleCount = reshuffleCount;
+    let newDiscardPile = discardPile;
 
     if (!canDraw(activeDeck, GAME_CONSTANTS.HAND_SIZE)) {
       if (reshuffleCount >= GAME_CONSTANTS.MAX_RESHUFFLES - 1) {
         set({ status: "game-over", gameOverReason: "reshuffle-limit" });
         return;
       }
-      activeDeck = reshuffleDeck(discardPile);
+
+      activeDeck = reshuffleDeck([...discardPile, ...drawPile, ...buildDeck()]);
+
+      newDiscardPile = [];
       newReshuffleCount += 1;
     }
 
@@ -83,11 +91,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       GAME_CONSTANTS.HAND_SIZE,
     );
     const nextHand = buildHand(drawn);
-
     const outcome = getHandResult(currentHand, nextHand);
     const result = resolveBet(bet, outcome);
     const points = getPointsEarned(result, nextHand.totalValue);
-
     const updatedTiles = applyTileValueChanges(nextHand.tiles, result);
     const updatedHand = buildHand(updatedTiles);
     const mergedDeck = mergeTileUpdates(remaining, updatedTiles);
@@ -98,7 +104,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         gameOverTile.currentValue <= GAME_CONSTANTS.MIN_TILE_VALUE
           ? "tile-reached-zero"
           : "tile-reached-max";
-
       set({
         currentHand: updatedHand,
         previousHand: currentHand,
@@ -109,29 +114,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    const newHistory = [
-      ...history,
-      {
-        hand: currentHand,
-        bet,
-        result,
-        pointsEarned: points,
-      },
-    ];
-
     set({
       drawPile: mergedDeck,
-      discardPile: [...discardPile, ...currentHand.tiles],
+      discardPile: [...newDiscardPile, ...currentHand.tiles],
       currentHand: updatedHand,
       previousHand: currentHand,
-      history: newHistory,
+      history: [
+        ...history,
+        { hand: currentHand, bet, result, pointsEarned: points },
+      ],
       score: score + points,
       reshuffleCount: newReshuffleCount,
       status: "betting",
     });
   },
 
-  resetGame: () => {
-    set(initialState);
-  },
+  resetGame: () => set(initialState),
 }));
