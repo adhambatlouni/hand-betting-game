@@ -25,12 +25,13 @@ export const TILE_DISPLAY_NAMES: Record<string, string> = {
 
 export function buildDeck(): Tile[] {
   const tiles: Tile[] = [];
+  const deckId = Math.random().toString(36).substring(2, 9);
 
   NUMBER_SUITS.forEach((suit) => {
     for (let face = 1; face <= 9; face++) {
       for (let copy = 0; copy < GAME_CONSTANTS.TILES_PER_TYPE; copy++) {
         tiles.push({
-          id: `${suit}-${face}-${copy}`,
+          id: `${suit}-${face}-${copy}-${deckId}`,
           type: "number",
           suit,
           faceValue: face,
@@ -43,7 +44,7 @@ export function buildDeck(): Tile[] {
   DRAGON_VARIANTS.forEach((variant) => {
     for (let copy = 0; copy < GAME_CONSTANTS.TILES_PER_TYPE; copy++) {
       tiles.push({
-        id: `dragon-${variant}-${copy}`,
+        id: `dragon-${variant}-${copy}-${deckId}`,
         type: "dragon",
         variant,
         faceValue: GAME_CONSTANTS.NON_NUMBER_BASE_VALUE,
@@ -55,7 +56,7 @@ export function buildDeck(): Tile[] {
   WIND_VARIANTS.forEach((variant) => {
     for (let copy = 0; copy < GAME_CONSTANTS.TILES_PER_TYPE; copy++) {
       tiles.push({
-        id: `wind-${variant}-${copy}`,
+        id: `wind-${variant}-${copy}-${deckId}`,
         type: "wind",
         variant,
         faceValue: GAME_CONSTANTS.NON_NUMBER_BASE_VALUE,
