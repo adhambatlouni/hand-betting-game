@@ -109,7 +109,6 @@ export const TILE_IMAGE_PATHS: Record<string, string> = {
   north: "/tiles/Pei.svg",
 };
 
-// helper to get the correct image path for any tile
 export function getTileImagePath(tile: Tile): string {
   if (tile.type === "number") {
     return TILE_IMAGE_PATHS[`${tile.suit}-${tile.faceValue}`];

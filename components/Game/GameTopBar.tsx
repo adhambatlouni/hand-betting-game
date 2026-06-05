@@ -17,10 +17,6 @@ const GameTopBar = () => {
 
   const reshufflesLeft = GAME_CONSTANTS.MAX_RESHUFFLES - reshuffleCount - 1;
 
-  //  const drawPercent = Math.min(
-  //   (drawPile.length / GAME_CONSTANTS.FULL_DECK_SIZE) * 100,
-  //   100,
-  // );
   const totalTiles = drawPile.length + discardPile.length;
   const drawPercent =
     totalTiles > 0 ? Math.min((drawPile.length / totalTiles) * 100, 100) : 0;

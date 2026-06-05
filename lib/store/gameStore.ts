@@ -59,14 +59,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       score,
       reshuffleCount,
     } = get();
-    console.log(
-      "BEFORE BET → drawPile:",
-      drawPile.length,
-      "| discard:",
-      discardPile.length,
-      "| reshuffles used:",
-      reshuffleCount,
-    );
 
     if (!currentHand) return;
 
