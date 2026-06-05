@@ -1,6 +1,19 @@
 # Bet the Hand — Mahjong Hi-Lo Betting Game
 
-A web-based Hi-Lo betting game built with Mahjong tiles. Predict whether the next hand will be higher or lower, survive the reshuffles, and climb the leaderboard.
+> A web-based Hi-Lo betting game built with Mahjong tiles. Read the hand, predict higher or lower, and survive as long as you can.
+
+---
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [How to Play](#how-to-play)
+- [Game Mechanics](#game-mechanics)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Assets](#assets)
+- [AI Usage](#ai-usage)
 
 ---
 
@@ -14,7 +27,7 @@ A web-based Hi-Lo betting game built with Mahjong tiles. Predict whether the nex
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/hand-betting-game.git
+git clone https://github.com/adhambatlouni/hand-betting-game.git
 cd hand-betting-game
 npm install
 npm run dev
@@ -26,48 +39,57 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## How to Play
 
-1. Start a session from the landing page
-2. You're dealt 3 tiles — note the combined total
-3. Bet **Higher** or **Lower** for the next hand
-4. Correct → earn points equal to the next hand's value
-5. Wrong → no points, game continues
-6. Survive until a tile hits 0 or 10, or the deck runs out 3 times
+1. Hit **Start Game** from the landing page
+2. You are dealt 3 Mahjong tiles — note the combined hand total
+3. Predict whether the **next** hand will be **Higher** or **Lower**
+4. **Correct** → earn points equal to the next hand's total value
+5. **Wrong** → no points, but the game continues
+6. Keep going until a tile value hits 0 or 10, or the deck reshuffles 3 times
+
+---
+
+## Game Mechanics
 
 ### Tile Types
 
-| Type                                 | Tiles | Value                               |
-| ------------------------------------ | ----- | ----------------------------------- |
-| Number (Characters, Bamboo, Circles) | 108   | Face value (1–9), never changes     |
-| Dragon (Red, Green, White)           | 12    | Starts at 5, shifts with each round |
-| Wind (East, West, North, South)      | 16    | Starts at 5, shifts with each round |
+| Type                                 | Tiles | Starting Value          |
+| ------------------------------------ | ----- | ----------------------- |
+| Number — Characters, Bamboo, Circles | 108   | Face value (1–9), fixed |
+| Dragon — Red, Green, White           | 12    | 5, dynamic              |
+| Wind — East, West, North, South      | 16    | 5, dynamic              |
 
 **Total deck: 136 tiles** — 4 copies of each tile, following standard Mahjong set composition.
 
 ### Dynamic Tile Values
 
-Dragon and Wind tiles are alive. Win a round with one in your hand and its value goes up by 1. Lose and it drops by 1. Each copy tracks its own value independently — push any tile to 0 or 10 and the session ends.
+Dragon and Wind tiles are not static. Every time one appears in a winning hand, its value increases by 1. Every time it appears in a losing hand, it decreases by 1. Each of the four copies of a tile tracks its own value independently using a unique id — so two Red Dragons in the same game can have completely different values depending on their history.
+
+### Scoring
+
+Points earned per round = the total value of the **next** hand at the moment it is revealed. Higher value hands reward more — this incentivises riskier predictions.
 
 ### Game Over Conditions
 
-- Any Dragon or Wind tile reaches **0** or **10**
+- Any Dragon or Wind tile reaches **0** (decayed) or **10** (overflowed)
 - The draw pile runs out for the **3rd time**
 
 ### Reshuffling
 
-When the draw pile runs out, a fresh 136-tile deck is added, combined with the discard pile, and reshuffled into a new draw pile. This can happen up to 3 times before the game ends.
+When the draw pile runs out, a fresh 136-tile deck is combined with the existing discard pile and shuffled into a new draw pile. The game tracks how many reshuffles have occurred and ends on the third.
 
 ---
 
 ## Tech Stack
 
-| Technology              | Purpose                         |
-| ----------------------- | ------------------------------- |
-| Next.js 16 (App Router) | Framework                       |
-| TypeScript              | Type safety                     |
-| Tailwind CSS v4         | Styling                         |
-| Zustand + persist       | State management + localStorage |
-| Framer Motion           | Animations and page transitions |
-| Lucide React            | Icons                           |
+| Technology      | Version         | Purpose                                  |
+| --------------- | --------------- | ---------------------------------------- |
+| Next.js         | 16 (App Router) | Framework and routing                    |
+| TypeScript      | 5               | Type safety across all layers            |
+| Tailwind CSS    | v4              | Utility-first styling                    |
+| Zustand         | latest          | Global state management                  |
+| Zustand persist | —               | Leaderboard persistence via localStorage |
+| Framer Motion   | latest          | Animations and page transitions          |
+| Lucide React    | latest          | Icon system                              |
 
 ---
 
@@ -75,80 +97,100 @@ When the draw pile runs out, a fresh 136-tile deck is added, combined with the d
 
 ```
 app/
-  layout.tsx              Global layout, fonts, background
-  template.tsx            Page fade transitions
-  page.tsx                Landing page
-  game/page.tsx           Game screen
-  game-over/page.tsx      Score summary screen
-  leaderboard/page.tsx    Top 5 leaderboard
+├── layout.tsx                  Global layout — fonts, background, body sizing
+├── template.tsx                Page transition fade (re-mounts on every route)
+├── page.tsx                    Landing page
+├── game/
+│   └── page.tsx                Game screen
+├── game-over/
+│   └── page.tsx                Score summary and save screen
+└── leaderboard/
+    └── page.tsx                Top 5 leaderboard
 
 components/
-  Game/
-    TopBar.tsx            Score, draw/discard counts, reshuffle indicator
-    HandHistory.tsx       Previous round result bar
-    CurrentHand.tsx       Active tiles and hand total
-    BetControls.tsx       Higher / Lower bet buttons
-  Leaderboard/
-    LeaderboardHeader.tsx
-    LeaderboardEntries.tsx
-    LeaderboardActions.tsx
-    RankIcon.tsx
-  Tile/
-    Tile.tsx              Reusable tile component (sm / md / lg)
+├── Game/
+│   ├── TopBar.tsx              Score display, draw/discard counts, reshuffle warning
+│   ├── HandHistory.tsx         Previous round summary — tiles, bet, result
+│   ├── CurrentHand.tsx         Active tiles, hand total, delta vs previous hand
+│   └── BetControls.tsx         Higher / Lower bet buttons with pending state
+├── Leaderboard/
+│   ├── LeaderboardHeader.tsx   Navigation header
+│   ├── LeaderboardEntries.tsx  Ranked score list with empty state
+│   ├── LeaderboardActions.tsx  Home and Play Again buttons
+│   └── RankIcon.tsx            Crown / Trophy / Medal rank icons
+└── Tile/
+    └── Tile.tsx                Reusable tile card — sm, md, lg sizes
 
 lib/
-  config/                 UI display data — colors, sizes, labels
-  constants/              Game rules — hand size, tile counts, value limits
-  engine/
-    deckEngine.ts         Deck creation, drawing, reshuffling
-    handEngine.ts         Hand building and comparison
-    betEngine.ts          Bet resolution and point calculation
-    tileEngine.ts         Dynamic tile value updates
-  store/
-    gameStore.ts          All game state (Zustand)
-    leaderboardStore.ts   Persistent scores (Zustand + localStorage)
-  types/                  TypeScript interfaces
+├── config/                     UI display data — colors, sizes, messages
+├── constants/
+│   ├── game.constants.ts       Game rules — hand size, reshuffle limit, tile value bounds
+│   └── tile.constants.ts       Deck builder, tile image paths, display names
+├── engine/
+│   ├── deckEngine.ts           Deck creation, tile drawing, reshuffling (Fisher-Yates)
+│   ├── handEngine.ts           Hand building and comparison
+│   ├── betEngine.ts            Bet resolution and point calculation
+│   └── tileEngine.ts           Dynamic tile value updates, game over detection
+├── store/
+│   ├── gameStore.ts            All game state — Zustand
+│   └── leaderboardStore.ts     Top 5 scores — Zustand + localStorage persist
+└── types/
+    ├── tile.types.ts
+    ├── game.types.ts
+    └── leaderboard.types.ts
 ```
 
-### Architecture
+---
 
-The engine layer is entirely pure — no React, no state, just functions that take inputs and return outputs. The store orchestrates the engines and owns the state. Components only read from the store and call store actions — they never touch game logic directly.
+## Architecture
 
-This separation means adding a new feature touches one layer at a time: write an engine function, wire it in the store, update the UI. Each layer stays independent.
+The project is built in four distinct layers:
+
+```
+UI Layer          →  Components and pages — only reads store, calls store actions
+Store Layer       →  Zustand stores — orchestrates engine calls, owns all state
+Engine Layer      →  Pure functions — game logic with no React or state dependency
+Foundation        →  Types, constants, and config — shared across all layers
+```
+
+**The engine layer is intentionally pure.** Every function takes inputs and returns outputs with no side effects. This means game logic is completely decoupled from the UI — changing how the game renders never risks breaking how it plays, and adding a new mechanic means writing one engine function and wiring it into the store.
+
+**The store is the orchestrator.** `placeBet` in `gameStore.ts` is the clearest example: it draws tiles, compares hands, resolves the bet, applies tile value changes, syncs those changes back into the deck via `mergeTileUpdates`, and checks for game over — all by calling engine functions in sequence. The store coordinates; the engines compute.
+
+**Components are thin.** `TopBar` reads two numbers from the store. `BetControls` calls one action. No component contains game logic. This makes the UI straightforward to change, extend, or replace without touching anything below it.
 
 ---
 
 ## Assets
 
-Tile SVG images sourced from [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) — released under the **CC0 public domain license**.
+Tile SVG images sourced from [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles), released under the **CC0 1.0 Universal public domain license**.
 
 ---
 
 ## AI Usage
 
-### Written by me
+### Written and owned by me
 
-- Full project architecture and folder structure
-- All game engine logic (`deckEngine`, `handEngine`, `betEngine`, `tileEngine`)
-- Zustand store design and the complete game state flow
-- Game mechanics — dynamic tile value system, reshuffle logic, scoring rules
+- Full project architecture — layered separation of engine, store, and UI
+- All game engine logic — `deckEngine`, `handEngine`, `betEngine`, `tileEngine`
+- Zustand store structure and the complete game state flow
+- Core game mechanics — dynamic tile value system, unique tile id tracking, reshuffle logic, scoring design
 - TypeScript type definitions and interfaces
-- Component structure and how components connect to the store
-- All debugging — traced and fixed the reshuffle deck-doubling bug, the orphaned tile edge case, and the draw pile progress bar calculation
+- Component structure and the data flow between components and the store
+- All debugging — identified and fixed the reshuffle deck-doubling bug, the orphaned tile edge case when the draw pile has leftover tiles, and the draw pile progress bar calculation after reshuffle
 
 ### AI assisted with
 
-- UI polish — Tailwind refinements, spacing consistency, visual hierarchy
+- UI polish — Tailwind class refinements, spacing, and visual consistency across pages
 - Framer Motion animation patterns and transition timing
-- Catching edge cases during code review (reshuffle logic, tile id uniqueness across deck generations)
-- Code cleanup — extracting config from components, simplifying pure functions
-- README writing
+- Code cleanup — extracting config objects out of components
+- README and documentation writing
 
-Every line of AI-suggested code was reviewed, understood, and intentionally chosen. All architectural and logic decisions were made by me.
+Every AI suggestion was reviewed, understood, and deliberately chosen before being used. Architecture decisions, logic design, and debugging were done by me throughout.
 
 ---
 
 ## Local Development Notes
 
-- Leaderboard scores persist in `localStorage` under the key `mahjong_leaderboard`
-- To reset scores: DevTools → Application → Local Storage → delete the key
+- Leaderboard scores are stored in `localStorage` under the key `mahjong_leaderboard`
+- To reset scores: **DevTools → Application → Local Storage → delete the key**, or run `localStorage.removeItem('mahjong_leaderboard')` in the console
