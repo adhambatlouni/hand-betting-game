@@ -15,7 +15,8 @@ const BetControls = () => {
     setTimeout(() => setPending(null), 80);
   };
 
-  const disabled = pending !== null || status !== "betting";
+  const clickDisabled = pending !== null || status !== "betting";
+  const visuallyDimmed = status !== "betting";
 
   return (
     <div className="shrink-0 px-5 pt-3.5 pb-6 bg-[#0A1510]/90 backdrop-blur-md border-t border-white/[0.07]">
@@ -31,15 +32,15 @@ const BetControls = () => {
         {/* HIGHER */}
         <motion.button
           onClick={() => handleBet("higher")}
-          disabled={disabled}
-          whileHover={!disabled ? { y: -2, scale: 1.012 } : {}}
-          whileTap={!disabled ? { scale: 0.96 } : {}}
+          disabled={clickDisabled}
+          whileHover={!clickDisabled ? { y: -2, scale: 1.012 } : {}}
+          whileTap={!clickDisabled ? { scale: 0.96 } : {}}
           transition={{ type: "spring", stiffness: 520, damping: 26 }}
           className={`
             relative flex-1 flex flex-col items-center justify-center gap-1.5
             py-3.5 sm:py-5 rounded-2xl border-2 overflow-hidden
             transition-colors duration-150 select-none touch-manipulation
-            ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+            ${visuallyDimmed ? "opacity-40 cursor-not-allowed" : clickDisabled ? "cursor-not-allowed" : "cursor-pointer"}
             ${
               pending === "higher"
                 ? "bg-emerald-500/20 border-emerald-400/70"
@@ -87,15 +88,15 @@ const BetControls = () => {
 
         <motion.button
           onClick={() => handleBet("lower")}
-          disabled={disabled}
-          whileHover={!disabled ? { y: -2, scale: 1.012 } : {}}
-          whileTap={!disabled ? { scale: 0.96 } : {}}
+          disabled={clickDisabled}
+          whileHover={!clickDisabled ? { y: -2, scale: 1.012 } : {}}
+          whileTap={!clickDisabled ? { scale: 0.96 } : {}}
           transition={{ type: "spring", stiffness: 520, damping: 26 }}
           className={`
             relative flex-1 flex flex-col items-center justify-center gap-1.5
             py-3.5 sm:py-5 rounded-2xl border-2 overflow-hidden
             transition-colors duration-150 select-none touch-manipulation
-            ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+            ${visuallyDimmed ? "opacity-40 cursor-not-allowed" : clickDisabled ? "cursor-not-allowed" : "cursor-pointer"}
             ${
               pending === "lower"
                 ? "bg-rose-500/20 border-rose-400/70"
