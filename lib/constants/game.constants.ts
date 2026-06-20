@@ -4,5 +4,5 @@ export const GAME_CONSTANTS = {
   MIN_TILE_VALUE: 0,
   MAX_TILE_VALUE: 10,
   NON_NUMBER_BASE_VALUE: 5,
-  TILES_PER_TYPE: 4,
+  TILES_PER_TYPE: 1,
 } as const;
