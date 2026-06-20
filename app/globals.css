@@ -17,6 +17,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
 body > div {
   height: 100%;
   width: 100%;

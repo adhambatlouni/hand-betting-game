@@ -11,7 +11,7 @@ const HandHistory = () => {
   const roundNumber = history.length;
 
   return (
-    <div className="shrink-0 w-full h-20 border-b border-white/6 bg-[#0C1810]/70">
+    <div className="shrink-0 w-full h-18 sm:h-20 border-b border-white/6 bg-[#0C1810]/70">
       <AnimatePresence mode="wait">
         {!lastRound ? (
           <motion.div
@@ -40,14 +40,14 @@ const HandHistory = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 14 }}
             transition={{ type: "spring", stiffness: 380, damping: 32 }}
-            className="flex items-center justify-between h-full px-4 gap-3"
+            className="flex items-center justify-between h-full px-3 sm:px-4 gap-2 sm:gap-3"
           >
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               <span className="shrink-0 text-[10px] font-bold text-emerald-400/80 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md leading-none">
                 #{roundNumber}
               </span>
 
-              <div className="flex gap-1.5 items-center shrink-0">
+              <div className="flex gap-1 sm:gap-1.5 items-center shrink-0">
                 {lastRound.hand.tiles.map((tile, i) => (
                   <Tile
                     key={tile.id}
@@ -59,7 +59,7 @@ const HandHistory = () => {
                 ))}
               </div>
 
-              <div className="flex flex-col leading-none shrink-0">
+              <div className="hidden min-[400px]:flex flex-col leading-none shrink-0">
                 <span className="text-[8px] text-white/25 uppercase tracking-wider mb-0.5">
                   Total
                 </span>
@@ -69,27 +69,27 @@ const HandHistory = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <span
-                className={`text-[11px] font-semibold px-2 py-1 rounded-lg border leading-none ${
+                className={`flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-1.5 sm:px-2 py-1 rounded-lg border leading-none ${
                   lastRound.bet === "higher"
                     ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10"
                     : "text-rose-300 border-rose-500/30 bg-rose-500/10"
                 }`}
               >
                 {lastRound.bet === "higher" ? (
-                  <TrendingUp size={11} />
+                  <TrendingUp size={10} />
                 ) : (
-                  <TrendingDown size={11} />
+                  <TrendingDown size={10} />
                 )}
-                {lastRound.bet === "higher" ? "Higher" : "Lower"}{" "}
+                {lastRound.bet === "higher" ? "Higher" : "Lower"}
               </span>
 
               <motion.span
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                className={`text-[11px] font-bold px-2 py-1 rounded-lg border leading-none ${
+                transition={{ type: "spring", stiffness: 500, damping: 24 }}
+                className={`text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-1 rounded-lg border leading-none ${
                   lastRound.result === "win"
                     ? "text-emerald-300 border-emerald-400/25 bg-emerald-400/10"
                     : "text-rose-400 border-rose-400/25 bg-rose-400/10"

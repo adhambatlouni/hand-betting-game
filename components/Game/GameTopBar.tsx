@@ -24,7 +24,7 @@ const GameTopBar = () => {
 
   return (
     <div className="shrink-0">
-      <div className="flex items-center justify-between px-5 py-3 bg-[#0E1E16]/95 backdrop-blur-md border-b border-white/6">
+      <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 bg-[#0E1E16]/95 backdrop-blur-md border-b border-white/6">
         <button
           onClick={handleExit}
           className="flex items-center gap-1.5 group"
@@ -54,28 +54,28 @@ const GameTopBar = () => {
             key={score}
             initial={{ scale: 1.35, color: "#34d399" }}
             animate={{ scale: 1, color: "#e2e8f0" }}
-            transition={{ duration: 0.35 }}
-            className="text-2xl font-bold font-mono leading-none tracking-tight"
+            transition={{ duration: 0.28 }}
+            className="text-xl sm:text-2xl font-bold font-mono leading-none tracking-tight"
           >
             {score.toLocaleString()}
           </motion.span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="flex flex-col items-end gap-0.5">
-            <span className="text-[9px] text-white/25 uppercase tracking-wider">
+            <span className="text-[9px] text-white/25 uppercase tracking-wider hidden sm:block">
               Draw
             </span>
-            <span className="text-sm font-mono font-semibold text-white/60">
+            <span className="text-xs sm:text-sm font-mono font-semibold text-white/60">
               {drawPile.length}
             </span>
           </div>
-          <div className="w-px h-5 bg-white/[0.07]" />
+          <div className="w-px h-4 sm:h-5 bg-white/[0.07]" />
           <div className="flex flex-col items-end gap-0.5">
-            <span className="text-[9px] text-white/25 uppercase tracking-wider">
+            <span className="text-[9px] text-white/25 uppercase tracking-wider hidden sm:block">
               Discard
             </span>
-            <span className="text-sm font-mono font-semibold text-white/60">
+            <span className="text-xs sm:text-sm font-mono font-semibold text-white/60">
               {discardPile.length}
             </span>
           </div>

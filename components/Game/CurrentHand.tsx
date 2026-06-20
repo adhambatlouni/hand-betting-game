@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/lib/store/gameStore";
 import Tile from "@/components/Tile/Tile";
@@ -8,6 +9,14 @@ const CurrentHand = () => {
   const { currentHand, history } = useGameStore();
   const previousHand =
     history.length > 0 ? history[history.length - 1].hand : null;
+  const [tileSize, setTileSize] = useState<"md" | "lg">("lg");
+
+  useEffect(() => {
+    const update = () => setTileSize(window.innerWidth < 380 ? "md" : "lg");
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   if (!currentHand) return null;
 
@@ -37,23 +46,23 @@ const CurrentHand = () => {
         <div className="h-px w-10 bg-white/8" />
       </motion.div>
 
-      <div className="flex items-end gap-5 shrink-0">
+      <div className="flex items-end gap-3 sm:gap-5 shrink-0">
         <AnimatePresence mode="popLayout">
           {currentHand.tiles.map((tile, index) => (
             <motion.div
               key={`${tile.id}-${history.length}`}
               layout
-              initial={{ opacity: 0, y: 28, scale: 0.86 }}
+              initial={{ opacity: 0, y: 22, scale: 0.88 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -18, scale: 0.86 }}
+              exit={{ opacity: 0, y: -14, scale: 0.88 }}
               transition={{
                 type: "spring",
-                stiffness: 280,
-                damping: 22,
-                delay: index * 0.08,
+                stiffness: 380,
+                damping: 24,
+                delay: index * 0.05,
               }}
             >
-              <Tile tile={tile} size="lg" animate={false} index={index} />
+              <Tile tile={tile} size={tileSize} animate={false} index={index} />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -65,9 +74,9 @@ const CurrentHand = () => {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{
           type: "spring",
-          stiffness: 260,
-          damping: 22,
-          delay: 0.28,
+          stiffness: 360,
+          damping: 24,
+          delay: 0.18,
         }}
         className="flex flex-col items-center gap-1.5 shrink-0"
       >
@@ -76,7 +85,7 @@ const CurrentHand = () => {
         </span>
 
         <div className="flex items-baseline gap-3">
-          <span className="text-[56px] font-black text-white font-mono leading-none tracking-tight">
+          <span className="text-[40px] sm:text-[52px] font-black text-white font-mono leading-none tracking-tight">
             {currentHand.totalValue}
           </span>
 
@@ -106,17 +115,9 @@ const CurrentHand = () => {
             const threshold = ((i + 1) / 12) * 27;
             const filled = currentHand.totalValue >= threshold;
             return (
-              <motion.div
+              <div
                 key={i}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{
-                  delay: 0.32 + i * 0.025,
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 20,
-                }}
-                className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+                className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${
                   filled ? "bg-emerald-400/55" : "bg-white/6"
                 }`}
               />
