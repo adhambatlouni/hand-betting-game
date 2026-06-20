@@ -1,18 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/lib/store/gameStore";
 
 const BetControls = () => {
-  const { placeBet, status } = useGameStore();
+  const { placeBet, status, currentHand } = useGameStore();
   const [pending, setPending] = useState<"higher" | "lower" | null>(null);
+
+  useEffect(() => {
+    setPending(null);
+  }, [currentHand]);
 
   const handleBet = (bet: "higher" | "lower") => {
     if (pending !== null || status !== "betting") return;
     setPending(bet);
     placeBet(bet);
-    setTimeout(() => setPending(null), 80);
   };
 
   const clickDisabled = pending !== null || status !== "betting";
@@ -29,7 +32,6 @@ const BetControls = () => {
       </div>
 
       <div className="flex gap-3 max-w-lg mx-auto">
-        {/* HIGHER */}
         <motion.button
           onClick={() => handleBet("higher")}
           disabled={clickDisabled}
