@@ -89,9 +89,13 @@ const GameTopBar = () => {
               ? "bg-linear-to-r from-amber-600 to-amber-400"
               : "bg-linear-to-r from-emerald-600 to-emerald-400"
           }`}
+          initial={{ width: `${drawPercent}%` }}
           animate={{ width: `${drawPercent}%` }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
-          style={{ width: `${drawPercent}%` }}
+          transition={{
+            type: "spring",
+            bounce: 0,
+            duration: 0.85,
+          }}
         />
       </div>
 
