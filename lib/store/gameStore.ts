@@ -134,7 +134,6 @@ export const useGameStore = create<GameStore>()(
         score: state.score,
         history: state.history,
         gameOverReason: state.gameOverReason,
-        status: state.status,
       }),
     }
   )
