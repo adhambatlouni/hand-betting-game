@@ -28,7 +28,7 @@ export function buildDeck(): Tile[] {
   const deckId = Math.random().toString(36).substring(2, 9);
 
   NUMBER_SUITS.forEach((suit) => {
-    for (let face = 1; face <= 3; face++) {
+    for (let face = 1; face <= 9; face++) {
       for (let copy = 0; copy < GAME_CONSTANTS.TILES_PER_TYPE; copy++) {
         tiles.push({
           id: `${suit}-${face}-${copy}-${deckId}`,
