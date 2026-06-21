@@ -15,6 +15,8 @@ const BetControls = () => {
     if (status === "betting") {
       setPending(null);
       processingRef.current = false;
+      higherAnim.stop();
+      lowerAnim.stop();
       higherAnim.set({ y: 0 });
       lowerAnim.set({ y: 0 });
     }
@@ -27,10 +29,10 @@ const BetControls = () => {
     setPending(bet);
 
     const controls = bet === "higher" ? higherAnim : lowerAnim;
-    controls.set({ y: 0 });
+    controls.stop();
     controls.start({
-      y: bet === "higher" ? [-3, 3, -3] : [3, -3, 3],
-      transition: { repeat: 4, duration: 0.42 },
+      y: bet === "higher" ? [0, -5, 0] : [0, 5, 0],
+      transition: { duration: 0.34, ease: "easeOut" },
     });
 
     placeBet(bet);
