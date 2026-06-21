@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useGameStore } from "@/lib/store/gameStore";
 import { useLeaderboardStore } from "@/lib/store/leaderboardStore";
 import { reasonMessages } from "@/lib/config/gameOver.config";
+import { Check } from "lucide-react";
 
 const GameOverPage = () => {
   const router = useRouter();
@@ -14,9 +15,13 @@ const GameOverPage = () => {
   const { score, history, gameOverReason, resetGame } = useGameStore();
   const { saveScore } = useLeaderboardStore();
 
+  const [finalScore] = useState(score);
+  const [finalRounds] = useState(history.length);
+  const [finalReason] = useState(gameOverReason);
+
   const handleSave = () => {
     if (!name.trim() || saved) return;
-    saveScore(name.trim(), score);
+    saveScore(name.trim(), finalScore);
     setSaved(true);
     setTimeout(() => {
       router.push("/leaderboard");
@@ -54,9 +59,9 @@ const GameOverPage = () => {
         <h1 className="text-5xl font-bold text-white tracking-tight">
           Well <span className="text-rose-400 italic">Played</span>
         </h1>
-        {gameOverReason && (
+        {finalReason && (
           <p className="text-white/50 text-sm mt-2">
-            {reasonMessages[gameOverReason]}
+            {reasonMessages[finalReason]}
           </p>
         )}
       </motion.div>
@@ -81,10 +86,10 @@ const GameOverPage = () => {
           }}
           className="text-7xl font-black text-white font-mono tabular-nums leading-none"
         >
-          {score.toLocaleString()}
+          {finalScore.toLocaleString()}
         </motion.p>
         <p className="text-white/30 text-xs mt-3">
-          {history.length} round{history.length !== 1 ? "s" : ""} played
+          {finalRounds} round{finalRounds !== 1 ? "s" : ""} played
         </p>
       </motion.div>
 
@@ -119,9 +124,17 @@ const GameOverPage = () => {
             disabled:opacity-30 disabled:cursor-not-allowed
             transition-all duration-200
             shadow-[0_4px_20px_rgba(52,211,153,0.25)]
+            flex items-center justify-center gap-2
           "
         >
-          {saved ? "Saved ✓" : "Save to Leaderboard"}
+          {saved ? (
+            <>
+              <Check className="w-4 h-4" strokeWidth={3} />
+              Saved
+            </>
+          ) : (
+            "Save to Leaderboard"
+          )}
         </button>
 
         <button
