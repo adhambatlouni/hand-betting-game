@@ -9,11 +9,11 @@ const BetControls = () => {
   const [pending, setPending] = useState<"higher" | "lower" | null>(null);
 
   useEffect(() => {
-    setPending(null);
-  }, [currentHand]);
+    if (status === "betting") setPending(null);
+  }, [status, currentHand]);
 
   const handleBet = (bet: "higher" | "lower") => {
-    if (pending !== null || status !== "betting") return;
+    if (useGameStore.getState().status !== "betting") return;
     setPending(bet);
     placeBet(bet);
   };

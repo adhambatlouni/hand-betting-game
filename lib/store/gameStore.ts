@@ -51,6 +51,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   placeBet: (bet: BetType) => {
+    if (get().status !== "betting") return;
+
     const {
       drawPile,
       discardPile,

@@ -31,10 +31,8 @@ const GameOverPage = () => {
 
   return (
     <div className="h-full w-full flex flex-col items-center justify-center gap-6 px-6 relative overflow-hidden">
-      {/* Subtle red glow at top */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-red-900/20 blur-[80px] rounded-full pointer-events-none" />
 
-      {/* ── Badge ── */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,7 +45,6 @@ const GameOverPage = () => {
         </span>
       </motion.div>
 
-      {/* ── Title ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -64,7 +61,6 @@ const GameOverPage = () => {
         )}
       </motion.div>
 
-      {/* ── Score card ── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -92,7 +88,6 @@ const GameOverPage = () => {
         </p>
       </motion.div>
 
-      {/* ── Actions ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,7 +104,7 @@ const GameOverPage = () => {
           className="
             w-full bg-white/6 border border-white/10
             focus:border-emerald-500/50 focus:bg-white/8
-            rounded-xl text-white text-sm px-4 py-3.5 outline-none
+            rounded-xl text-white text-base px-4 py-3.5 outline-none
             placeholder:text-white/25 text-center tracking-wide
             transition-all duration-200
           "
