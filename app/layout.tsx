@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -14,6 +15,10 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#132018",
+};
+
 export const metadata: Metadata = {
   title: "Bet the Hand — Mahjong Betting Game",
   description:
@@ -26,6 +31,8 @@ export const metadata: Metadata = {
   },
   other: {
     "apple-mobile-web-app-title": "Hi-Lo",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
   },
 };
 
@@ -35,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="h-screen overflow-hidden bg-linear-to-br from-[#1A2E25] via-[#132018] to-[#0D1610] antialiased">
+        <ServiceWorkerRegistration />
         {children}
       </body>
     </html>

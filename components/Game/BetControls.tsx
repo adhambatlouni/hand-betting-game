@@ -1,19 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/lib/store/gameStore";
 
 const BetControls = () => {
   const { placeBet, status, currentHand } = useGameStore();
   const [pending, setPending] = useState<"higher" | "lower" | null>(null);
+  const processingRef = useRef(false);
 
   useEffect(() => {
-    if (status === "betting") setPending(null);
+    if (status === "betting") {
+      setPending(null);
+      processingRef.current = false;
+    }
   }, [status, currentHand]);
 
   const handleBet = (bet: "higher" | "lower") => {
+    if (processingRef.current) return;
     if (useGameStore.getState().status !== "betting") return;
+    processingRef.current = true;
     setPending(bet);
     placeBet(bet);
   };
@@ -66,7 +72,7 @@ const BetControls = () => {
               pending === "higher"
                 ? {
                     y: [-3, 3, -3],
-                    transition: { repeat: Infinity, duration: 0.42 },
+                    transition: { repeat: 4, duration: 0.42 },
                   }
                 : { y: 0 }
             }
@@ -122,7 +128,7 @@ const BetControls = () => {
               pending === "lower"
                 ? {
                     y: [3, -3, 3],
-                    transition: { repeat: Infinity, duration: 0.42 },
+                    transition: { repeat: 4, duration: 0.42 },
                   }
                 : { y: 0 }
             }
