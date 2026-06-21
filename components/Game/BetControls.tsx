@@ -1,18 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { useGameStore } from "@/lib/store/gameStore";
 
 const BetControls = () => {
   const { placeBet, status, currentHand } = useGameStore();
   const [pending, setPending] = useState<"higher" | "lower" | null>(null);
   const processingRef = useRef(false);
+  const higherAnim = useAnimation();
+  const lowerAnim = useAnimation();
 
   useEffect(() => {
     if (status === "betting") {
       setPending(null);
       processingRef.current = false;
+      higherAnim.set({ y: 0 });
+      lowerAnim.set({ y: 0 });
     }
   }, [status, currentHand]);
 
@@ -21,6 +25,14 @@ const BetControls = () => {
     if (useGameStore.getState().status !== "betting") return;
     processingRef.current = true;
     setPending(bet);
+
+    const controls = bet === "higher" ? higherAnim : lowerAnim;
+    controls.set({ y: 0 });
+    controls.start({
+      y: bet === "higher" ? [-3, 3, -3] : [3, -3, 3],
+      transition: { repeat: 4, duration: 0.42 },
+    });
+
     placeBet(bet);
   };
 
@@ -68,14 +80,7 @@ const BetControls = () => {
           </AnimatePresence>
 
           <motion.span
-            animate={
-              pending === "higher"
-                ? {
-                    y: [-3, 3, -3],
-                    transition: { repeat: 4, duration: 0.42 },
-                  }
-                : { y: 0 }
-            }
+            animate={higherAnim}
             className="text-[32px] font-black text-emerald-400 leading-none"
           >
             ↑
@@ -124,14 +129,7 @@ const BetControls = () => {
           </AnimatePresence>
 
           <motion.span
-            animate={
-              pending === "lower"
-                ? {
-                    y: [3, -3, 3],
-                    transition: { repeat: 4, duration: 0.42 },
-                  }
-                : { y: 0 }
-            }
+            animate={lowerAnim}
             className="text-[32px] font-black text-rose-400 leading-none"
           >
             ↓
