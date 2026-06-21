@@ -1,23 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useGameStore } from "@/lib/store/gameStore";
 import { useLeaderboardStore } from "@/lib/store/leaderboardStore";
 import { reasonMessages } from "@/lib/config/gameOver.config";
+import { GameOverReason } from "@/lib/types/game.types";
 import { Check } from "lucide-react";
 
 const GameOverPage = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [saved, setSaved] = useState(false);
-  const { score, history, gameOverReason, resetGame } = useGameStore();
+  const { resetGame } = useGameStore();
   const { saveScore } = useLeaderboardStore();
 
-  const [finalScore] = useState(score);
-  const [finalRounds] = useState(history.length);
-  const [finalReason] = useState(gameOverReason);
+  const [finalScore, setFinalScore] = useState(0);
+  const [finalRounds, setFinalRounds] = useState(0);
+  const [finalReason, setFinalReason] = useState<GameOverReason | undefined>(undefined);
+
+  useEffect(() => {
+    const capture = () => {
+      const state = useGameStore.getState();
+      setFinalScore(state.score);
+      setFinalRounds(state.history.length);
+      setFinalReason(state.gameOverReason);
+    };
+
+    if (useGameStore.persist.hasHydrated()) {
+      capture();
+    } else {
+      return useGameStore.persist.onFinishHydration(capture);
+    }
+  }, []);
 
   const handleSave = () => {
     if (!name.trim() || saved) return;
