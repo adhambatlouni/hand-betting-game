@@ -71,6 +71,7 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
 
   if (request.method !== "GET") return;
+  if (!request.url.startsWith("http")) return;
   if (request.url.includes("/_next/webpack-hmr")) return;
   if (request.url.includes("/_next/static/development")) return;
 

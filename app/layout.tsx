@@ -41,7 +41,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="h-screen overflow-hidden bg-linear-to-br from-[#1A2E25] via-[#132018] to-[#0D1610] antialiased">
+      <body suppressHydrationWarning className="h-screen overflow-hidden bg-linear-to-br from-[#1A2E25] via-[#132018] to-[#0D1610] antialiased">
         <ServiceWorkerRegistration />
         {children}
       </body>
