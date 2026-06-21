@@ -19,8 +19,8 @@ const GameOverPage = () => {
     saveScore(name.trim(), score);
     setSaved(true);
     setTimeout(() => {
-      resetGame();
       router.push("/leaderboard");
+      resetGame();
     }, 600);
   };
 
