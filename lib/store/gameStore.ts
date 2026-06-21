@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { GameState, GameOverReason, BetType } from "@/lib/types/game.types";
 import { GAME_CONSTANTS } from "@/lib/constants/game.constants";
 import {
@@ -35,106 +34,94 @@ const initialState: GameState = {
   gameOverReason: undefined,
 };
 
-export const useGameStore = create<GameStore>()(
-  persist(
-    (set, get) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
+  ...initialState,
+
+  startGame: () => {
+    const deck = createShuffledDeck();
+    const { drawn, remaining } = drawTiles(deck, GAME_CONSTANTS.HAND_SIZE);
+    const firstHand = buildHand(drawn);
+    set({
       ...initialState,
+      drawPile: remaining,
+      discardPile: [],
+      currentHand: firstHand,
+      status: "betting",
+    });
+  },
 
-      startGame: () => {
-        const deck = createShuffledDeck();
-        const { drawn, remaining } = drawTiles(deck, GAME_CONSTANTS.HAND_SIZE);
-        const firstHand = buildHand(drawn);
-        set({
-          ...initialState,
-          drawPile: remaining,
-          discardPile: [],
-          currentHand: firstHand,
-          status: "betting",
-        });
-      },
+  placeBet: (bet: BetType) => {
+    if (get().status !== "betting") return;
 
-      placeBet: (bet: BetType) => {
-        if (get().status !== "betting") return;
+    const {
+      drawPile,
+      discardPile,
+      currentHand,
+      history,
+      score,
+      reshuffleCount,
+    } = get();
 
-        const {
-          drawPile,
-          discardPile,
-          currentHand,
-          history,
-          score,
-          reshuffleCount,
-        } = get();
+    if (!currentHand) return;
 
-        if (!currentHand) return;
+    let activeDeck = drawPile;
+    let newReshuffleCount = reshuffleCount;
+    let newDiscardPile = discardPile;
 
-        let activeDeck = drawPile;
-        let newReshuffleCount = reshuffleCount;
-        let newDiscardPile = discardPile;
+    if (!canDraw(activeDeck, GAME_CONSTANTS.HAND_SIZE)) {
+      if (reshuffleCount >= GAME_CONSTANTS.MAX_RESHUFFLES - 1) {
+        set({ status: "game-over", gameOverReason: "reshuffle-limit" });
+        return;
+      }
 
-        if (!canDraw(activeDeck, GAME_CONSTANTS.HAND_SIZE)) {
-          if (reshuffleCount >= GAME_CONSTANTS.MAX_RESHUFFLES - 1) {
-            set({ status: "game-over", gameOverReason: "reshuffle-limit" });
-            return;
-          }
+      activeDeck = reshuffleDeck([...discardPile, ...drawPile, ...buildDeck()]);
 
-          activeDeck = reshuffleDeck([...discardPile, ...drawPile, ...buildDeck()]);
-
-          newDiscardPile = [];
-          newReshuffleCount += 1;
-        }
-
-        const { drawn, remaining } = drawTiles(
-          activeDeck,
-          GAME_CONSTANTS.HAND_SIZE,
-        );
-        const nextHand = buildHand(drawn);
-        const outcome = getHandResult(currentHand, nextHand);
-        const result = resolveBet(bet, outcome);
-        const points = getPointsEarned(result, nextHand.totalValue);
-        const updatedTiles = applyTileValueChanges(nextHand.tiles, result);
-        const updatedHand = buildHand(updatedTiles);
-        const mergedDeck = mergeTileUpdates(remaining, updatedTiles);
-
-        const gameOverTile = findGameOverTile([...mergedDeck, ...updatedTiles]);
-        if (gameOverTile) {
-          const reason: GameOverReason =
-            gameOverTile.currentValue <= GAME_CONSTANTS.MIN_TILE_VALUE
-              ? "tile-reached-zero"
-              : "tile-reached-max";
-          set({
-            currentHand: updatedHand,
-            previousHand: currentHand,
-            status: "game-over",
-            gameOverReason: reason,
-            score: score + points,
-          });
-          return;
-        }
-
-        set({
-          drawPile: mergedDeck,
-          discardPile: [...newDiscardPile, ...currentHand.tiles],
-          currentHand: updatedHand,
-          previousHand: currentHand,
-          history: [
-            ...history,
-            { hand: currentHand, bet, result, pointsEarned: points },
-          ],
-          score: score + points,
-          reshuffleCount: newReshuffleCount,
-          status: "betting",
-        });
-      },
-
-      resetGame: () => set(initialState),
-    }),
-    {
-      name: "game-store",
-      partialize: (state) => ({
-        score: state.score,
-        history: state.history,
-        gameOverReason: state.gameOverReason,
-      }),
+      newDiscardPile = [];
+      newReshuffleCount += 1;
     }
-  )
-);
+
+    const { drawn, remaining } = drawTiles(
+      activeDeck,
+      GAME_CONSTANTS.HAND_SIZE,
+    );
+    const nextHand = buildHand(drawn);
+    const outcome = getHandResult(currentHand, nextHand);
+    const result = resolveBet(bet, outcome);
+    const points = getPointsEarned(result, nextHand.totalValue);
+    const updatedTiles = applyTileValueChanges(nextHand.tiles, result);
+    const updatedHand = buildHand(updatedTiles);
+    const mergedDeck = mergeTileUpdates(remaining, updatedTiles);
+
+    const gameOverTile = findGameOverTile([...mergedDeck, ...updatedTiles]);
+    if (gameOverTile) {
+      const reason: GameOverReason =
+        gameOverTile.currentValue <= GAME_CONSTANTS.MIN_TILE_VALUE
+          ? "tile-reached-zero"
+          : "tile-reached-max";
+      set({
+        currentHand: updatedHand,
+        previousHand: currentHand,
+        status: "game-over",
+        gameOverReason: reason,
+        score: score + points,
+      });
+      return;
+    }
+
+    set({
+      drawPile: mergedDeck,
+      discardPile: [...newDiscardPile, ...currentHand.tiles],
+      currentHand: updatedHand,
+      previousHand: currentHand,
+      history: [
+        ...history,
+        { hand: currentHand, bet, result, pointsEarned: points },
+      ],
+      score: score + points,
+      reshuffleCount: newReshuffleCount,
+      status: "betting",
+    });
+  },
+
+  resetGame: () => set(initialState),
+}));
